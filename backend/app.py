@@ -4,7 +4,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 import uuid
 from datetime import datetime
-from backend.utils.game_manager import GameManager
+from utils.game_manager import GameManager
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'party-challenges-secret-key-2024'

@@ -1,7 +1,7 @@
 import json
 import random
 from typing import Dict, List, Optional
-from backend.models import GameRoom, Challenge
+from models import GameRoom, Challenge
 import config
 
 class GameManager:
