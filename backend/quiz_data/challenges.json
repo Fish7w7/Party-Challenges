@@ -1,0 +1,162 @@
+[
+  {
+    "type": "quiz",
+    "question": "Qual é a capital da França?",
+    "answer": "paris",
+    "points": 100,
+    "time_limit": 15
+  },
+  {
+    "type": "target",
+    "description": "Clique nos alvos que aparecem!",
+    "points": 200,
+    "time_limit": 30,
+    "config": {
+      "targetCount": 10
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Quanto é 2 + 2?",
+    "answer": "4",
+    "points": 50,
+    "time_limit": 10
+  },
+  {
+    "type": "memory",
+    "description": "Memorize a sequência de cores!",
+    "points": 250,
+    "time_limit": 90,
+    "config": {
+      "rounds": 5
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Qual é o maior planeta do sistema solar?",
+    "answer": "júpiter",
+    "points": 100,
+    "time_limit": 20
+  },
+  {
+    "type": "math",
+    "description": "Resolva as operações matemáticas!",
+    "points": 200,
+    "time_limit": 60,
+    "config": {
+      "questionCount": 10
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Em que ano o homem pisou na Lua pela primeira vez?",
+    "answer": "1969",
+    "points": 150,
+    "time_limit": 25
+  },
+  {
+    "type": "target",
+    "description": "Teste seus reflexos!",
+    "points": 200,
+    "time_limit": 25,
+    "config": {
+      "targetCount": 15
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Qual é a cor que se forma misturando azul e amarelo?",
+    "answer": "verde",
+    "points": 75,
+    "time_limit": 15
+  },
+  {
+    "type": "memory",
+    "description": "Sequência de memória avançada!",
+    "points": 300,
+    "time_limit": 120,
+    "config": {
+      "rounds": 7
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Quantos continentes existem no mundo?",
+    "answer": "7",
+    "points": 100,
+    "time_limit": 20
+  },
+  {
+    "type": "math",
+    "description": "Desafio matemático rápido!",
+    "points": 150,
+    "time_limit": 45,
+    "config": {
+      "questionCount": 8
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Qual é o animal mais rápido do mundo?",
+    "answer": "guepardo",
+    "points": 125,
+    "time_limit": 20
+  },
+  {
+    "type": "target",
+    "description": "Alvos em modo difícil!",
+    "points": 250,
+    "time_limit": 20,
+    "config": {
+      "targetCount": 20
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Qual é o menor país do mundo?",
+    "answer": "vaticano",
+    "points": 175,
+    "time_limit": 25
+  },
+  {
+    "type": "memory",
+    "description": "Teste sua memória!",
+    "points": 200,
+    "time_limit": 60,
+    "config": {
+      "rounds": 4
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Quantas patas tem uma aranha?",
+    "answer": "8",
+    "points": 75,
+    "time_limit": 15
+  },
+  {
+    "type": "math",
+    "description": "Matemática avançada!",
+    "points": 250,
+    "time_limit": 75,
+    "config": {
+      "questionCount": 12
+    }
+  },
+  {
+    "type": "quiz",
+    "question": "Qual é a fórmula química da água?",
+    "answer": "h2o",
+    "points": 100,
+    "time_limit": 15
+  },
+  {
+    "type": "target",
+    "description": "Reflexo extremo!",
+    "points": 300,
+    "time_limit": 35,
+    "config": {
+      "targetCount": 25
+    }
+  }
+]
