@@ -9,6 +9,7 @@ const MathChallenge = ({ onComplete, timeLimit = 60, questionCount = 10 }) => {
   const [gameActive, setGameActive] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [streak, setStreak] = useState(0);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   // Gerar pergunta matemática
   const generateQuestion = (difficulty) => {
@@ -69,11 +70,12 @@ const MathChallenge = ({ onComplete, timeLimit = 60, questionCount = 10 }) => {
     setStreak(0);
     setTimeLeft(timeLimit);
     setFeedback(null);
+    setHasCompleted(false);
     setCurrentQuestion(generateQuestion(1));
   };
 
   const checkAnswer = () => {
-    if (!userAnswer.trim() || !currentQuestion) return;
+    if (!userAnswer.trim() || !currentQuestion || feedback) return;
 
     const isCorrect = parseInt(userAnswer) === currentQuestion.answer;
     
@@ -100,14 +102,23 @@ const MathChallenge = ({ onComplete, timeLimit = 60, questionCount = 10 }) => {
   };
 
   const endGame = () => {
+    if (hasCompleted) return;
+    
+    setHasCompleted(true);
     setGameActive(false);
-    setTimeout(() => {
-      onComplete({
-        score: score,
+    
+    // Chamar callback imediatamente
+    if (onComplete) {
+      const finalScore = score + (timeLeft * 2);
+      const result = {
+        score: finalScore,
         correctAnswers: Math.floor(score / 10),
-        timeBonus: timeLeft > 0 ? timeLeft * 2 : 0
-      });
-    }, 1500);
+        timeBonus: timeLeft * 2
+      };
+      
+      console.log('Enviando resultado do desafio matemático:', result);
+      onComplete(result);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -291,6 +302,9 @@ const MathChallenge = ({ onComplete, timeLimit = 60, questionCount = 10 }) => {
               Total: <strong>{score + (timeLeft * 2)} pontos</strong>
             </div>
           </div>
+          <p style={{ marginTop: '20px', fontSize: '16px', opacity: 0.8 }}>
+            Resultado enviado! Aguardando outros jogadores...
+          </p>
         </div>
       )}
 

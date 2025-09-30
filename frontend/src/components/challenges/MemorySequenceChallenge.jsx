@@ -14,8 +14,9 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
   const [activeColor, setActiveColor] = useState(null);
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
-  const [gameState, setGameState] = useState('start'); // start, showing, input, correct, wrong, finished
+  const [gameState, setGameState] = useState('start');
   const [message, setMessage] = useState('');
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   // Gerar nova sequência
   const generateSequence = (length) => {
@@ -46,7 +47,7 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
 
   // Iniciar rodada
   const startRound = () => {
-    const newSequence = generateSequence(round + 3); // Começa com 3, depois 4, 5...
+    const newSequence = generateSequence(round + 3);
     setSequence(newSequence);
     setUserSequence([]);
     playSequence(newSequence);
@@ -57,11 +58,12 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
     setRound(1);
     setScore(0);
     setGameState('playing');
+    setHasCompleted(false);
   };
 
   // Quando a rodada muda
   useEffect(() => {
-    if (gameState === 'playing' && round > 0) {
+    if (gameState === 'playing' && round > 0 && round <= rounds) {
       startRound();
     }
   }, [round, gameState]);
@@ -94,9 +96,10 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
 
     // Verificar se completou a sequência
     if (newUserSequence.length === sequence.length) {
+      const roundPoints = sequence.length * 10;
       setGameState('correct');
-      setScore(prev => prev + sequence.length * 10);
-      setMessage('✅ Correto! +' + (sequence.length * 10) + ' pontos');
+      setScore(prev => prev + roundPoints);
+      setMessage(`✅ Correto! +${roundPoints} pontos`);
       
       setTimeout(() => {
         if (round >= rounds) {
@@ -109,14 +112,23 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
   };
 
   const finishGame = () => {
+    if (hasCompleted) return; // Prevenir múltiplas chamadas
+    
+    setHasCompleted(true);
     setGameState('finished');
-    setTimeout(() => {
-      onComplete({
+    setMessage(`🎉 Jogo finalizado! Pontuação: ${score}`);
+    
+    // Chamar callback imediatamente
+    if (onComplete) {
+      const result = {
         score: score,
         rounds: round,
         maxSequence: round + 2
-      });
-    }, 2000);
+      };
+      
+      console.log('Enviando resultado do jogo da memória:', result);
+      onComplete(result);
+    }
   };
 
   return (
@@ -210,11 +222,11 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
                   background: activeColor === id ? activeColor : color,
                   border: 'none',
                   borderRadius: '16px',
-                  cursor: isPlaying || gameState !== 'input' ? 'not-allowed' : 'pointer',
+                  cursor: (isPlaying || gameState !== 'input') ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s',
                   transform: activeColor === id ? 'scale(0.95)' : 'scale(1)',
                   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                  opacity: isPlaying || gameState !== 'input' ? 0.6 : 1
+                  opacity: (isPlaying || gameState !== 'input') ? 0.6 : 1
                 }}
                 onMouseEnter={(e) => {
                   if (!isPlaying && gameState === 'input') {
@@ -255,6 +267,9 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
             <div>Rodadas: <strong>{round}/{rounds}</strong></div>
             <div>Maior Sequência: <strong>{round + 2}</strong></div>
           </div>
+          <p style={{ marginTop: '20px', fontSize: '16px', opacity: 0.8 }}>
+            Resultado enviado! Aguardando outros jogadores...
+          </p>
         </div>
       )}
     </div>
