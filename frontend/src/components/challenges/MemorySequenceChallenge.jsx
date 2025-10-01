@@ -10,127 +10,108 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
 
   const [sequence, setSequence] = useState([]);
   const [userSequence, setUserSequence] = useState([]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [activeColor, setActiveColor] = useState(null);
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
   const [gameState, setGameState] = useState('start');
   const [message, setMessage] = useState('');
   const [hasCompleted, setHasCompleted] = useState(false);
-  const [isWaiting, setIsWaiting] = useState(false);
+  
+  // NOVO: controle de animação por índice
+  const [animatingIndex, setAnimatingIndex] = useState(-1);
+  const [isAnimatingOn, setIsAnimatingOn] = useState(false);
 
-  // Gerar nova sequência
   const generateSequence = (length) => {
     const newSequence = [];
     for (let i = 0; i < length; i++) {
       const randomIndex = Math.floor(Math.random() * colors.length);
       newSequence.push(colors[randomIndex].id);
     }
-    console.log('Sequência gerada:', newSequence);
     return newSequence;
   };
 
-  // Mostrar sequência
-  const playSequence = async (seq) => {
-    setIsPlaying(true);
-    setGameState('showing');
-    setMessage('Memorize a sequência!');
-    setUserSequence([]);
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    for (let i = 0; i < seq.length; i++) {
-      setActiveColor(seq[i]);
-      await new Promise(resolve => setTimeout(resolve, 600));
-      setActiveColor(null);
-      await new Promise(resolve => setTimeout(resolve, 400));
-    }
-
-    setIsPlaying(false);
-    setGameState('input');
-    setMessage('Agora repita a sequência!');
-  };
-
-  // Iniciar jogo
   const startGame = () => {
-    console.log('Iniciando jogo da memória');
     setRound(1);
     setScore(0);
-    setGameState('preparing');
     setHasCompleted(false);
-    setIsWaiting(false);
+    setUserSequence([]);
+    setGameState('preparing');
   };
 
-  // Efeito para iniciar rodada
+  // Gerar nova sequência quando entrar em 'preparing'
   useEffect(() => {
     if (gameState === 'preparing' && round > 0 && round <= rounds) {
-      console.log(`Preparando rodada ${round}`);
-      const newSequence = generateSequence(round + 2); // Começa com 3, depois 4, 5...
-      setSequence(newSequence);
+      const newSeq = generateSequence(round + 2);
+      setSequence(newSeq);
       setUserSequence([]);
       
       setTimeout(() => {
-        playSequence(newSequence);
-      }, 500);
+        setGameState('animating');
+        setAnimatingIndex(0);
+        setIsAnimatingOn(true);
+        setMessage('👀 Memorize a sequência!');
+      }, 800);
     }
   }, [gameState, round]);
 
-  // Click no botão colorido
-  const handleColorClick = (colorId) => {
-    if (isPlaying || gameState !== 'input' || isWaiting) {
-      console.log('Click bloqueado:', { isPlaying, gameState, isWaiting });
+  // Animação da sequência
+  useEffect(() => {
+    if (gameState !== 'animating') return;
+    
+    if (animatingIndex >= sequence.length) {
+      setAnimatingIndex(-1);
+      setIsAnimatingOn(false);
+      setTimeout(() => {
+        setGameState('input');
+        setMessage('✋ Agora repita a sequência!');
+      }, 500);
       return;
     }
 
-    console.log('Cor clicada:', colorId);
-    console.log('Posição na sequência:', userSequence.length);
-    console.log('Cor esperada:', sequence[userSequence.length]);
+    if (isAnimatingOn) {
+      setTimeout(() => {
+        setIsAnimatingOn(false);
+      }, 600);
+    } else {
+      setTimeout(() => {
+        setAnimatingIndex(prev => prev + 1);
+        setIsAnimatingOn(true);
+      }, 300);
+    }
+  }, [gameState, animatingIndex, isAnimatingOn, sequence]);
+
+  const handleColorClick = (colorId) => {
+    if (gameState !== 'input') return;
 
     const newUserSequence = [...userSequence, colorId];
     setUserSequence(newUserSequence);
 
-    // Feedback visual
-    setActiveColor(colorId);
-    setTimeout(() => setActiveColor(null), 200);
-
-    // Verificar se errou
     const expectedColor = sequence[userSequence.length];
+    
     if (colorId !== expectedColor) {
-      console.log('ERRO! Cor errada');
       setGameState('wrong');
-      setMessage('❌ Errado! Tente novamente.');
-      setIsWaiting(true);
+      setMessage('❌ Errado!');
       
       setTimeout(() => {
-        setIsWaiting(false);
         if (round >= rounds) {
-          console.log('Fim do jogo após erro');
           finishGame();
         } else {
-          console.log('Próxima rodada após erro');
           setRound(prev => prev + 1);
           setGameState('preparing');
         }
-      }, 2000);
+      }, 1500);
       return;
     }
 
-    // Verificar se completou a sequência
     if (newUserSequence.length === sequence.length) {
-      console.log('Sequência completa! ACERTOU!');
       const roundPoints = sequence.length * 10;
       setGameState('correct');
       setScore(prev => prev + roundPoints);
-      setMessage(`✅ Correto! +${roundPoints} pontos`);
-      setIsWaiting(true);
+      setMessage(`✅ Perfeito! +${roundPoints} pts`);
       
       setTimeout(() => {
-        setIsWaiting(false);
         if (round >= rounds) {
-          console.log('Fim do jogo após completar');
           finishGame();
         } else {
-          console.log('Próxima rodada após acerto');
           setRound(prev => prev + 1);
           setGameState('preparing');
         }
@@ -140,23 +121,27 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
 
   const finishGame = () => {
     if (hasCompleted) return;
-    
-    console.log('Finalizando jogo da memória. Score final:', score);
     setHasCompleted(true);
     setGameState('finished');
-    setMessage(`🎉 Jogo finalizado! Pontuação: ${score}`);
     
     if (onComplete) {
-      const result = {
+      onComplete({
         score: score,
         rounds: round,
         maxSequence: round + 2
-      };
-      
-      console.log('Enviando resultado:', result);
-      onComplete(result);
+      });
     }
   };
+
+  // Determinar qual cor está ativa
+  const getActiveColor = () => {
+    if (gameState === 'animating' && isAnimatingOn && animatingIndex >= 0) {
+      return sequence[animatingIndex];
+    }
+    return null;
+  };
+
+  const activeColorId = getActiveColor();
 
   return (
     <div style={{
@@ -179,8 +164,8 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
           marginTop: '20px'
         }}>
           <p style={{ fontSize: '18px', marginBottom: '30px', lineHeight: '1.6' }}>
-            Memorize a sequência de cores e repita na ordem correta!<br/>
-            A sequência fica mais longa a cada rodada. {rounds} rodadas no total.
+            Memorize a sequência de cores que vai <strong>piscar</strong>!<br/>
+            Depois, repita clicando nas cores na ordem correta.
           </p>
           <button
             onClick={startGame}
@@ -193,10 +178,8 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
               border: 'none',
               borderRadius: '12px',
               cursor: 'pointer',
-              transition: 'transform 0.2s'
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
             }}
-            onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
           >
             Começar
           </button>
@@ -210,7 +193,10 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
             justifyContent: 'space-around',
             marginBottom: '30px',
             fontSize: '18px',
-            fontWeight: '600'
+            fontWeight: '600',
+            background: 'rgba(0, 0, 0, 0.2)',
+            borderRadius: '12px',
+            padding: '15px'
           }}>
             <div>Rodada: {round}/{rounds}</div>
             <div>Pontos: {score}</div>
@@ -218,16 +204,16 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
           </div>
 
           <div style={{
-            minHeight: '60px',
+            minHeight: '70px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '20px',
-            fontWeight: '600',
+            fontSize: '22px',
+            fontWeight: '700',
             marginBottom: '30px',
-            background: 'rgba(0, 0, 0, 0.2)',
+            background: 'rgba(0, 0, 0, 0.3)',
             borderRadius: '12px',
-            padding: '15px'
+            padding: '20px'
           }}>
             {message}
           </div>
@@ -239,41 +225,39 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
             maxWidth: '400px',
             margin: '0 auto'
           }}>
-            {colors.map(({ id, color, activeColor }) => (
-              <button
-                key={id}
-                onClick={() => handleColorClick(id)}
-                disabled={isPlaying || gameState !== 'input' || isWaiting}
-                style={{
-                  height: '120px',
-                  background: activeColor === id ? activeColor : color,
-                  border: 'none',
-                  borderRadius: '16px',
-                  cursor: (isPlaying || gameState !== 'input' || isWaiting) ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s',
-                  transform: activeColor === id ? 'scale(0.95)' : 'scale(1)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                  opacity: (isPlaying || gameState !== 'input' || isWaiting) ? 0.6 : 1
-                }}
-                onMouseEnter={(e) => {
-                  if (!isPlaying && gameState === 'input' && !isWaiting) {
-                    e.target.style.transform = 'scale(1.05)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (activeColor !== id) {
-                    e.target.style.transform = 'scale(1)';
-                  }
-                }}
-              />
-            ))}
+            {colors.map(({ id, color, activeColor }) => {
+              const isActive = id === activeColorId;
+              return (
+                <div
+                  key={id}
+                  onClick={() => handleColorClick(id)}
+                  style={{
+                    height: '120px',
+                    background: isActive ? activeColor : color,
+                    border: isActive ? '6px solid white' : '2px solid rgba(255,255,255,0.2)',
+                    borderRadius: '16px',
+                    cursor: gameState === 'input' ? 'pointer' : 'default',
+                    transform: isActive ? 'scale(1.15)' : 'scale(1)',
+                    boxShadow: isActive 
+                      ? '0 0 40px white, 0 0 80px currentColor' 
+                      : '0 4px 12px rgba(0, 0, 0, 0.3)',
+                    filter: isActive ? 'brightness(1.8) saturate(1.5)' : 'brightness(1)',
+                    transition: 'all 0.15s ease-out',
+                    opacity: gameState === 'input' ? 1 : 0.7
+                  }}
+                />
+              );
+            })}
           </div>
 
           {gameState === 'input' && (
             <div style={{
-              marginTop: '20px',
-              fontSize: '16px',
-              opacity: 0.8
+              marginTop: '25px',
+              fontSize: '18px',
+              fontWeight: '600',
+              background: 'rgba(16, 185, 129, 0.2)',
+              padding: '10px',
+              borderRadius: '8px'
             }}>
               Progresso: {userSequence.length}/{sequence.length}
             </div>
@@ -290,12 +274,11 @@ const MemorySequenceChallenge = ({ onComplete, rounds = 5 }) => {
         }}>
           <h3 style={{ fontSize: '32px', marginBottom: '20px' }}>🎉 Desafio Concluído!</h3>
           <div style={{ fontSize: '20px', lineHeight: '2' }}>
-            <div>Pontuação Final: <strong>{score}</strong></div>
-            <div>Rodadas Completas: <strong>{round}/{rounds}</strong></div>
-            <div>Maior Sequência: <strong>{round + 2}</strong></div>
+            <div>Pontuação: <strong>{score}</strong></div>
+            <div>Rodadas: <strong>{round}/{rounds}</strong></div>
           </div>
           <p style={{ marginTop: '20px', fontSize: '16px', opacity: 0.8 }}>
-            Resultado enviado! Aguardando outros jogadores...
+            Resultado enviado!
           </p>
         </div>
       )}
