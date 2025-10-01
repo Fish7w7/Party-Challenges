@@ -25,7 +25,7 @@ const CreateRoom = ({ onRoomCreated }) => {
     setLoading(true)
 
     try {
-      const response = await createRoom(nameValidation.name)
+      const response = await createRoom(nameValidation.name, selectedAvatar)
       
       if (response.success) {
         onRoomCreated(response.room_id, response.player_name, true, selectedAvatar) // Passa avatar

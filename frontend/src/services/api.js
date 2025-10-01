@@ -36,10 +36,11 @@ api.interceptors.response.use(
 )
 
 // API functions
-export const createRoom = async (playerName) => {
+export const createRoom = async (playerName, avatar = '😀') => {
   try {
     const response = await api.post('/create-room', {
-      player_name: playerName
+      player_name: playerName,
+      avatar: avatar  // ← Enviar avatar
     })
     return response.data
   } catch (error) {
