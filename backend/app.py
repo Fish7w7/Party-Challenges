@@ -35,21 +35,26 @@ def index():
 
 @app.route('/api/create-room', methods=['POST'])
 def create_room():
-    """Criar uma nova sala de jogo"""
     try:
         data = request.get_json()
         if not data:
             return jsonify({'error': 'Dados JSON são obrigatórios'}), 400
             
         player_name = data.get('player_name', '').strip()
+        avatar = data.get('avatar', '😀')  # ← Receber avatar
+        
         if not player_name:
             return jsonify({'error': 'Nome do jogador é obrigatório'}), 400
         
-        # Gerar ID único para a sala
         room_id = str(uuid.uuid4())[:8].upper()
         
-        # Criar sala no game manager
-        room = game_manager.create_empty_room(room_id)
+        # ✅ Criar sala COM o host já incluído
+        room = game_manager.create_room(
+            room_id=room_id,
+            host_name=player_name,
+            host_id=f"temp_host_{room_id}",  # ID temporário até conectar via socket
+            host_avatar=avatar
+        )
         
         return jsonify({
             'room_id': room_id,
