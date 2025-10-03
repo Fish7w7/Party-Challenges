@@ -98,6 +98,14 @@ class GameManager:
         if not room:
             return False
         
+        # Verificar se jogador já existe antes de adicionar
+        if player_id in room.players:
+            # Atualizar dados se já existe
+            room.players[player_id].name = player_name
+            room.players[player_id].avatar = avatar or '👤'
+            return True
+        
+        # Adicionar novo jogador
         return room.add_player(player_id, player_name, avatar)
     
     def remove_player(self, room_id: str, player_id: str) -> bool:

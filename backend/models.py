@@ -48,15 +48,14 @@ class Challenge:
         self.options = challenge_data.get('options', [])
         self.points = challenge_data.get('points', 100)
         self.time_limit = challenge_data.get('time_limit', 30)
-        self.config = challenge_data.get('config', {})  # ✅ NOVO: Configurações para minigames
+        self.config = challenge_data.get('config', {})
     
     def check_answer(self, user_answer: str) -> tuple:
         """
         Verificar se a resposta está correta
         Retorna (is_correct, points_earned)
-        ✅ ATUALIZADO: Agora retorna tupla com pontos
         """
-        # ✅ NOVO: Minigames retornam resultado JSON
+        # Minigames retornam resultado JSON
         if self.type in ['target', 'memory', 'math']:
             try:
                 result = json.loads(user_answer) if isinstance(user_answer, str) else user_answer
@@ -105,7 +104,7 @@ class Challenge:
                 result['options'] = self.options
         elif self.type == 'action':
             result['description'] = self.description
-        elif self.type in ['target', 'memory', 'math']:  # ✅ NOVO
+        elif self.type in ['target', 'memory', 'math']:
             result['description'] = self.description
             result['config'] = self.config
         
@@ -131,12 +130,17 @@ class GameRoom:
         if len(self.players) >= 10:
             return False
         
+        # Atualizar se já existe (previne duplicação)
         if player_id in self.players:
-            return False
+            self.players[player_id].name = player_name
+            self.players[player_id].avatar = avatar or '👤'
+            return True
         
+        # Se é o primeiro jogador, torna-se host
         if not self.players:
             self.host_id = player_id
         
+        # Adiciona novo jogador
         self.players[player_id] = Player(player_id, player_name, avatar)
         return True
     
@@ -193,7 +197,6 @@ class GameRoom:
         """
         Jogador submete resposta
         Retorna (success, points_earned)
-        ✅ ATUALIZADO: Retorna tupla
         """
         if player_id not in self.players:
             return False, 0
@@ -257,7 +260,7 @@ class GameRoom:
             if current_challenge and player.current_answer:
                 is_correct, points_earned = current_challenge.check_answer(str(player.current_answer))
             
-            # ✅ NOVO: Para minigames, mostrar score em vez da resposta bruta
+            # Para minigames, mostrar score em vez da resposta bruta
             display_answer = player.current_answer
             if current_challenge and current_challenge.type in ['target', 'memory', 'math']:
                 try:

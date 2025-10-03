@@ -35,26 +35,21 @@ def index():
 
 @app.route('/api/create-room', methods=['POST'])
 def create_room():
+    """Criar uma nova sala de jogo"""
     try:
         data = request.get_json()
         if not data:
             return jsonify({'error': 'Dados JSON são obrigatórios'}), 400
             
         player_name = data.get('player_name', '').strip()
-        avatar = data.get('avatar', '😀')  # ← Receber avatar
-        
         if not player_name:
             return jsonify({'error': 'Nome do jogador é obrigatório'}), 400
         
+        # Gerar ID único para a sala
         room_id = str(uuid.uuid4())[:8].upper()
         
-        # ✅ Criar sala COM o host já incluído
-        room = game_manager.create_room(
-            room_id=room_id,
-            host_name=player_name,
-            host_id=f"temp_host_{room_id}",  # ID temporário até conectar via socket
-            host_avatar=avatar
-        )
+        # Criar sala VAZIA (jogador se conecta via WebSocket)
+        room = game_manager.create_empty_room(room_id)
         
         return jsonify({
             'room_id': room_id,
@@ -104,7 +99,7 @@ def handle_join_room(data):
     try:
         room_id = data.get('room_id')
         player_name = data.get('player_name')
-        player_avatar = data.get('avatar', '👤')  # Avatar padrão se não fornecido
+        player_avatar = data.get('avatar', '👤')
         
         if not room_id or not player_name:
             emit('error', {'message': 'Room ID e nome do jogador são obrigatórios'})
@@ -115,13 +110,18 @@ def handle_join_room(data):
             emit('error', {'message': 'Sala não encontrada'})
             return
         
-        # Verificar se o jogador já está na sala
+        # ✅ CRÍTICO: Verificar se já está conectado (previne duplicação)
         if request.sid in connected_players:
             player_info = connected_players[request.sid]
             if player_info.get('room_id') == room_id:
+                # Já está na sala, apenas retornar info
                 room_info = game_manager.get_room_info(room_id)
                 emit('room_joined', room_info)
                 return
+            else:
+                # Está em outra sala, remover primeiro
+                old_room = player_info.get('room_id')
+                game_manager.remove_player(old_room, request.sid)
         
         # Adicionar jogador à sala com avatar
         success = game_manager.add_player(room_id, request.sid, player_name, player_avatar)
@@ -140,20 +140,21 @@ def handle_join_room(data):
         # Entrar na sala do Socket.IO
         join_room(room_id)
         
-        # Notificar outros jogadores
+        # ✅ CRÍTICO: Notificar APENAS outros jogadores (skip_sid)
         room_players = game_manager.get_room_players(room_id)
         socketio.emit('player_joined', {
             'player_id': request.sid,
             'player_name': player_name,
             'avatar': player_avatar,
             'players': room_players
-        }, room=room_id)
+        }, room=room_id, skip_sid=request.sid)
         
-        # Enviar estado atual para o jogador
+        # Enviar estado atual para o jogador que acabou de entrar
         room_info = game_manager.get_room_info(room_id)
         emit('room_joined', room_info)
         
     except Exception as e:
+        print(f"Erro em join_room: {str(e)}")
         emit('error', {'message': 'Erro interno do servidor'})
 
 @socketio.on('start_game')
@@ -211,14 +212,13 @@ def handle_submit_answer(data):
             emit('error', {'message': 'Jogador não está nesta sala'})
             return
         
-        # ✅ ATUALIZADO: recebe is_correct e points_earned
         is_correct, points_earned = game_manager.check_answer(room_id, request.sid, answer)
         
         # Notificar o jogador sobre sua resposta
         emit('answer_result', {
             'correct': is_correct,
             'answer': answer,
-            'points_earned': points_earned  # ✅ NOVO CAMPO
+            'points_earned': points_earned
         })
         
         # Verificar se todos responderam
