@@ -82,7 +82,7 @@
   {
     "type": "quiz",
     "question": "Quantos continentes existem no mundo?",
-    "answer": "7",
+    "answer": "6",
     "points": 100,
     "time_limit": 20
   },

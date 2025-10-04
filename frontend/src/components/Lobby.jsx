@@ -11,7 +11,6 @@ const Lobby = ({ roomId, players, isHost, onStartGame, onShowScoreboard, onLeave
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error('Erro ao copiar código:', err)
-      // Fallback para browsers mais antigos
       const textArea = document.createElement('textarea')
       textArea.value = roomId
       document.body.appendChild(textArea)
@@ -137,9 +136,21 @@ const Lobby = ({ roomId, players, isHost, onStartGame, onShowScoreboard, onLeave
               </div>
             </div>
             <div className="rule-item">
-              <span className="rule-icon">🎭</span>
+              <span className="rule-icon">🎯</span>
               <div className="rule-text">
-                <strong>Desafios:</strong> Complete ações divertidas em tempo limitado
+                <strong>Reflexo:</strong> Clique nos alvos que aparecem na tela
+              </div>
+            </div>
+            <div className="rule-item">
+              <span className="rule-icon">🧠</span>
+              <div className="rule-text">
+                <strong>Memória:</strong> Memorize e repita as sequências de cores
+              </div>
+            </div>
+            <div className="rule-item">
+              <span className="rule-icon">🧮</span>
+              <div className="rule-text">
+                <strong>Matemática:</strong> Resolva operações matemáticas rapidamente
               </div>
             </div>
             <div className="rule-item">
@@ -209,8 +220,8 @@ const Lobby = ({ roomId, players, isHost, onStartGame, onShowScoreboard, onLeave
             <span className="stat-label">Rodadas</span>
           </div>
           <div className="stat-item">
-            <span className="stat-value">30s</span>
-            <span className="stat-label">Por pergunta</span>
+            <span className="stat-value">30-90s</span>
+            <span className="stat-label">Por desafio</span>
           </div>
         </div>
       </div>

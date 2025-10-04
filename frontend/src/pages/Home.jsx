@@ -8,8 +8,8 @@ const Home = () => {
         <div className="welcome-section">
           <h2 className="welcome-title">Bem-vindo ao Party Challenges!</h2>
           <p className="welcome-description">
-            Um jogo divertido (nem tanto) de quiz e desafios para jogar com seus amigos em tempo real.
-            Crie uma sala ou entre em uma existente para começar!
+            Um jogo multiplayer online de quiz e desafios interativos para jogar com seus amigos em tempo real.
+            Escolha seu avatar, crie uma sala ou entre em uma existente e mostre suas habilidades!
           </p>
         </div>
 
@@ -39,34 +39,34 @@ const Home = () => {
             <div className="feature-item">
               <span className="feature-number">1</span>
               <div className="feature-content">
-                <h4>Crie ou Entre</h4>
-                <p>Crie uma sala nova ou entre em uma existente com o código</p>
+                <h4>Escolha seu Avatar</h4>
+                <p>Personalize sua identidade com dezenas de emojis disponíveis</p>
               </div>
             </div>
             
             <div className="feature-item">
               <span className="feature-number">2</span>
               <div className="feature-content">
-                <h4>Aguarde Amigos</h4>
-                <p>Compartilhe o código da sala e aguarde todos se conectarem</p>
+                <h4>Crie ou Entre</h4>
+                <p>Crie uma sala nova ou entre em uma existente com o código</p>
               </div>
             </div>
             
             <div className="feature-item">
               <span className="feature-number">3</span>
               <div className="feature-content">
-                <h4>Jogue e Divirta-se</h4>
-                <p>Responda perguntas e complete desafios para ganhar pontos</p>
+                <h4>Aguarde Jogadores</h4>
+                <p>Compartilhe o código da sala e aguarde no mínimo 2 jogadores</p>
               </div>
             </div>
+            
             <div className="feature-item">
               <span className="feature-number">4</span>
               <div className="feature-content">
-                <h4>Sem Amigos ?</h4>
-                <p>Quita dessa merda :D</p>
+                <h4>Jogue e Divirta-se</h4>
+                <p>Responda perguntas, complete desafios e conquiste a liderança!</p>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -77,9 +77,43 @@ const Home = () => {
               <span className="type-icon">❓</span>
               Quiz
             </div>
-            <div className="type-badge action">
-              <span className="type-icon">🎭</span>
-              Ações
+            <div className="type-badge target">
+              <span className="type-icon">🎯</span>
+              Reflexo
+            </div>
+            <div className="type-badge memory">
+              <span className="type-icon">🧠</span>
+              Memória
+            </div>
+            <div className="type-badge math">
+              <span className="type-icon">🧮</span>
+              Matemática
+            </div>
+          </div>
+        </div>
+
+        <div className="game-info-section">
+          <h3>📋 Informações do Jogo:</h3>
+          <div className="info-grid">
+            <div className="info-card">
+              <span className="info-icon">👥</span>
+              <h4>2-10 Jogadores</h4>
+              <p>Mínimo de 2 jogadores para iniciar</p>
+            </div>
+            <div className="info-card">
+              <span className="info-icon">🎮</span>
+              <h4>10 Rodadas</h4>
+              <p>Diversos tipos de desafios</p>
+            </div>
+            <div className="info-card">
+              <span className="info-icon">⚡</span>
+              <h4>Tempo Limitado</h4>
+              <p>30-90 segundos por desafio</p>
+            </div>
+            <div className="info-card">
+              <span className="info-icon">🏆</span>
+              <h4>Sistema de Pontos</h4>
+              <p>Velocidade e precisão contam</p>
             </div>
           </div>
         </div>
